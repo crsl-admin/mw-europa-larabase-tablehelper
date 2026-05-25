@@ -1,7 +1,10 @@
 <template>
-    <v-card v-bind="{ title, }">
-        <v-card-text>
-            <v-data-table-server v-model="selected" v-model:items-per-page="itemsPerPage" v-bind="{
+    <div v-if="hasSearchBar" class="datatable-search-bar mb-4">
+        <SearchBar v-model="searchValue" :search="table?.search" />
+    </div>
+
+    <v-card v-bind="{ title, }" class="rounded-lg overflow-hidden" elevation="0" border>
+        <v-data-table-server v-model="selected" v-model:items-per-page="itemsPerPage" v-bind="{
                 headers,
                 items,
                 sortBy,
@@ -13,24 +16,23 @@
                 returnObject,
                 selectStrategy,
                 itemValue,
-                elevation: 2,
+                elevation: 0,
                 rowProps,
+                noDataText: trans('common.no-data'),
+                loadingText: trans('common.loading'),
+                itemsPerPageText: trans('common.items-per-page'),
             }" @update:options="loadItems" @click:row="(e, v) => $emit('click:row', v)">
-                <template v-slot:top v-if="hasSearchBar || hasFilters">
-                    <div class="align-center mx-4 ">
+                <template v-slot:top v-if="hasFilters">
+                    <div class="align-center mx-4 my-2">
 
-                        <!-- Search bar/ -->
-                        <div v-if="hasSearchBar" class="datatable-search-bar d-flex justify-center align-center">
-                            <div class="flex-grow-1 flex-shrink-0">
-                                <SearchBar v-model="searchValue" :search="table?.search" />
-                            </div>
+                        <div class="d-flex justify-center align-center">
                             <!-- Filter editor, if enabled -->
-                            <div v-if="hasFilters" class="flex-grow-0 flex-shrink-1 ml-4">
+                            <div v-if="hasFilters" class="flex-grow-0 flex-shrink-1">
                                 <FiltersEditor v-model="editFilters" v-bind="{ filters, activeFilters, loading }"
                                     @apply="applyFilter" />
                             </div>
                         </div>
-                        <!-- /Search bar -->
+
                         <!-- Filters/ -->
                         <div v-if="hasFilters" class="d-flex justify-center align-center">
                             <!-- Filter list -->
@@ -38,12 +40,6 @@
 
                                 <FilterChip v-for="(filter, k) of activeFilters" v-model="activeFilters[k]"
                                     @click="editFilters = true;" />
-                            </div>
-
-                            <!-- Filter editor, only if not present in search bar -->
-                            <div v-if="!hasSearchBar" class="flex-grow-0 flex-shrink-1">
-                                <FiltersEditor v-model="editFilters" v-bind="{ filters, activeFilters, loading }"
-                                    @apply="applyFilter" />
                             </div>
                         </div>
                         <!-- /Filters -->
@@ -68,7 +64,7 @@
                         <v-icon v-else color="error" icon="cancel" />
                     </template>
                     <template v-else-if="header.type === 'action'">
-                        <ActionRow v-bind="{ value: item, header, }" />
+                        <ActionRow v-bind="{ value: item, header, }" @action="(e) => $emit('action', e)" />
                     </template>
                     <template v-else>{{ formatItem(header, item) }}</template>
                 </template>
@@ -76,7 +72,7 @@
                 <!-- custom paginator -->
                 <template v-slot:bottom>
                     <slot name="bottom" v-bind="{ page, lastPage }">
-                        <div class="d-flex justify-center align-center text-center pt-2">
+                        <div class="d-flex justify-center align-center text-center pt-2 footer ">
                             <!-- <div>total: {{ itemsLength }}</div>-->
                             <v-pagination v-model="page" v-bind="{
                                 length: lastPage,
@@ -88,7 +84,6 @@
                     </slot>
                 </template>
             </v-data-table-server>
-        </v-card-text>
         <slot name="card-footer"></slot>
     </v-card>
 </template>
@@ -302,6 +297,12 @@ export default {
         },
     },
     watch: {
+        '$page.props': {
+            handler() {
+                this.parser._init();
+            },
+            deep: true,
+        },
         modelValue() {
             if (!equals(this.selected, this.modelValue)) {
                 this.selected = this.modelValue;

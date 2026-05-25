@@ -1,10 +1,11 @@
 <template>
     <v-text-field v-model="model" v-bind="{
-        prependIcon: 'search',
-        label: 'Ricerca',
+        prependInnerIcon: 'search',
+        placeholder: 'Cerca...',
         clearable: true,
-        variant: 'underlined',
-        
+        variant: 'outlined',
+        density: 'comfortable',
+        hideDetails: true,
         singleLine: true,
     }">
         <template v-if="hasOptions" v-slot:append-inner="slots">

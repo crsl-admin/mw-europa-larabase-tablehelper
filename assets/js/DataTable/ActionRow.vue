@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="d-flex flex-nowrap align-center">
     <v-menu v-if="header.group" :location="location">
       <template v-slot:activator="{ props }">
-        <v-btn density="comfortable" icon="more_vert" size="small" v-bind="props" value="true" variant="text"/>
+        <v-btn density="comfortable" icon="more_vert" size="small" v-bind="props" value="true" variant="text" @click.stop/>
       </template>
       <v-list>
         <template v-for="(action, i) in actions">
@@ -11,17 +11,17 @@
                         title: action.label ?? action.name,
                         baseColor: action.color,
                         prependIcon: action.icon ?? action.prependIcon,
-                    }" @click="onAction(action)"/>
+                    }" @click.stop="onAction(action)"/>
         </template>
       </v-list>
     </v-menu>
     <template v-for="{ bind, tooltip, isIconButton, action } in actionBindings" v-else>
       <v-tooltip v-if="isIconButton && tooltip" v-bind="tooltip">
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="Object.assign(props, bind)" @click="onAction(action)"/>
+          <v-btn v-bind="Object.assign(props, bind)" @click.stop="onAction(action)"/>
         </template>
       </v-tooltip>
-      <v-btn v-else v-bind="bind" @click="onAction(action)"/>
+      <v-btn v-else v-bind="bind" @click.stop="onAction(action)"/>
     </template>
   </div>
 </template>
@@ -110,9 +110,9 @@ export default {
       if (action.color)
         return action.color;
       return {
-        edit: 'warning',
-        destroy: 'error',
-        show: 'info',
+        edit: 'primary',
+        destroy: 'primary',
+        show: 'primary',
       }[action.name] ?? 'primary';
     },
     getActionIcon(action) {
@@ -125,14 +125,21 @@ export default {
       }[action.name] ?? null;
     },
     onAction(action) {
-      console.log('onAction', Object.assign({}, this.action));
+      console.log('onAction', Object.assign({}, action));
 
       const url = this.getActionUrl(action);
       const method = action.method ?? 'get';
 
       if (!action.confirm || confirm(action.confirm)) {
         if (url) {
-          router.visit(url, {method,});
+          if (method.toLowerCase() === 'get') {
+            router.get(url);
+          } else {
+            router.visit(url, { method });
+          }
+        } else {
+          // If no URL, emit event to parent
+          this.$emit('action', { action: action.name, item: this.value });
         }
       }
     },

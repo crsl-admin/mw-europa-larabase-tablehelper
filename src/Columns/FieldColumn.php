@@ -25,6 +25,7 @@ class FieldColumn extends TableColumn
         );
     }
 
+
     public function parse(TableData &$data): void
     {
         if ($sort = $this->parseSort($this->sort ?? $data->getColumnDefault('sort'))) {
@@ -36,14 +37,16 @@ class FieldColumn extends TableColumn
 
         if ($this->visible) {
             $data->addHeader((
-                    new TableHeader(
-                        name: $this->name,
-                        title: $this->label,
-                        sortable: (bool) $sort,
-                        filterable: (bool) $filter,
-                        format: $this->type,
-                    ))
-                        ->translate($data->getcolumnsLocalization())
+                new TableHeader(
+                    ...array_merge([
+                        'name' => $this->name,
+                        'title' => $this->label,
+                        'sortable' => (bool) $sort,
+                        'filterable' => (bool) $filter,
+                        'format' => $this->type,
+                    ], $this->props)
+                ))
+                    ->translate($data->getcolumnsLocalization())
             );
         }
     }

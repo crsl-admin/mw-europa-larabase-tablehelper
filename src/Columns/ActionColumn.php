@@ -35,14 +35,16 @@ class ActionColumn extends DisplayColumn
         if ($this->visible) {
             $data->addHeader((
             new TableHeader(
-                type: 'action',
-                name: $this->name,
-                title: $this->label,
-                //sortable: false,
-                //filterable: false,
-                actions: $this->actions, /// Action list
-                actionsLocalization: $this->actionsLocalization, // Action localization
-                group: $this->group,
+                ...array_merge([
+                    'type' => 'action',
+                    'name' => $this->name,
+                    'title' => $this->label,
+                    //sortable: false,
+                    //filterable: false,
+                    'actions' => $this->actions, /// Action list
+                    'actionsLocalization' => $this->actionsLocalization, // Action localization
+                    'group' => $this->group,
+                ], $this->props)
             ))
                 ->translate($data->getcolumnsLocalization()));
         }

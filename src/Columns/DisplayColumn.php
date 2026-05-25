@@ -25,11 +25,13 @@ class DisplayColumn extends TableColumn
         if ($this->visible) {
             $data->addHeader((
             new TableHeader(
-                type: 'display',
-                name: $this->name,
-                title: $this->label,
-                sortable: false,
-                filterable: false,
+                ...array_merge([
+                    'type' => 'display',
+                    'name' => $this->name,
+                    'title' => $this->label,
+                    'sortable' => false,
+                    'filterable' => false,
+                ], $this->props)
             ))
                 ->translate($data->getcolumnsLocalization()));
         }
