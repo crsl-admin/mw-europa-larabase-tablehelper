@@ -1,5 +1,5 @@
 {
-  "name": "plokko/larabase-tablehelper",
+  "name": "crsl-admin/mw-europa-larabase-tablehelper",
   "description": "A dynamic Inertiajs table helper for Laravel.",
   "keywords": [
     "laravel",
@@ -15,7 +15,7 @@
   },
   "authors": [
     {
-      "name": "Francesco Pellerone"
+      "name": "CRSLaghi"
     }
   ],
   "require": {
